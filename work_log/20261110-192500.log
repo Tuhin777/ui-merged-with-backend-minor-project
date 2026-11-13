@@ -1,0 +1,34 @@
+# Project Work Log
+
+## 2026-11-10 - Time-Bounded Packet Capture Sessions & Auto-Stop Feature
+
+- **Summary**: Implemented configurable, time-bounded packet capture sessions with automatic termination, live real-time countdowns, and progress bar visualization across both the Header and Capture views.
+- **Details (The 'What')**:
+  - **Backend (`dpi/server.py`)**:
+    - Added `duration_seconds: Optional[int] = None` to `StartCaptureRequest`.
+    - Added session timer thread (`threading.Timer`) and an active 1-second ticker thread (`ticker()`) to dispatch real-time `timer_tick` WebSocket events containing `remaining_seconds` and `duration_seconds`.
+    - Implemented graceful auto-stop handler (`auto_stop()`) which stops the PyShark capturer, cancels timers, resets duration state, and broadcasts `capture_stopped`.
+    - Exposed `duration_seconds` and `remaining_seconds` in `/api/status` endpoint.
+  - **API Client (`apps/web/lib/api.ts`)**:
+    - Updated `SystemStatus` interface with optional `duration_seconds` and `remaining_seconds`.
+    - Updated `startCapture` function to accept `durationSeconds?: number`.
+  - **Frontend UI (`apps/web/components/views/CaptureView.tsx`)**:
+    - Added **Session Capture Duration** selector with presets:
+      - `10s (Test)`
+      - `30s (Default)`
+      - `60s (1m)`
+      - `300s (5m)`
+      - `Continuous (∞)`
+      - `Custom` (reveals a numeric input for arbitrary duration in seconds).
+    - Added an active session countdown card that displays the remaining time (`10s / 10s` down to `0s`), an animated clock icon, and a live progress bar showing elapsed session percentage.
+  - **Header Controls (`apps/web/components/Header.tsx`)**:
+    - Added a quick session duration dropdown (`10s`, `30s`, `1m`, `5m`, `Continuous`) next to the "Start Live" action button for instant launches from any page.
+    - Added a high-contrast pulsing countdown badge (`⏱ Xs remaining`) in the top navigation ticker during active timed captures.
+  - **State Synchronization (`apps/web/app/page.tsx`)**:
+    - Handled `timer_tick` and `stats` WebSocket payloads to ensure zero-latency countdown updates even on quiet networks.
+- **Verification**:
+  - Automated backend test confirmed 5-second session stopped automatically at exactly 5 seconds, capturing 267 packets and processing them through the ML model.
+  - Browser subagent verified UI functionality at `http://localhost:3000`: tested the custom input toggle, selected the 10-second preset, started live capture, watched the real-time countdown and progress bar, and confirmed clean auto-stop after 10 seconds. Ingested total packets reached 1,093 across 6 flows.
+- **Decisions (The 'Why')**:
+  - Prevents runaway capture loops that consume memory and network buffers while running developer tests.
+  - Provides deterministic session windows for reproducible ML flow evaluation.

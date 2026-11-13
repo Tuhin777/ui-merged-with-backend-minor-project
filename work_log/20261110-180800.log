@@ -1,0 +1,17 @@
+# Project Work Log
+
+## 2026-11-10 - Live Capture Bug Fix & Verification
+
+- **Summary**: Diagnosed and resolved the live packet capture crash in `dpi/server.py` and `dpi/utils/logger.py`, successfully ingesting real network packets and flows.
+- **Details (The 'What')**:
+  - Found that `dpi/utils/logger.py` lacked `.info()`, `.error()`, `.debug()`, and `.warning()` methods, causing `AttributeError: 'logger' object has no attribute 'info'` when the background capture worker started.
+  - Added wrapper methods `.info()`, `.error()`, `.debug()`, and `.warning()` to `class logger` in `dpi/utils/logger.py`.
+  - Added isolated thread event loop initialization (`new_loop = asyncio.new_event_loop(); asyncio.set_event_loop(new_loop)`) in `capture_worker` to prevent PyShark from colliding with FastAPI's main event loop on Windows.
+  - Enhanced `Header.tsx` so the "Start Live" button uses the currently selected active interface.
+  - Restarted the backend and ran a live capture test on `Wi-Fi` adapter: successfully captured 356 packets across 10 active flows in 3 seconds.
+  - Accumulated 593 total packets and 15 flows.
+  - Browser agent verified that the dashboard (`http://localhost:3000`) displays the live telemetry: 593 packets, 365.85 KB volume, and 15 tracked flows.
+- **Decisions (The 'Why')**:
+  - Maintained backward compatibility with existing code calling `logger.log()` while providing standard logging interface methods.
+- **Next Steps**:
+  - Ready for user testing.

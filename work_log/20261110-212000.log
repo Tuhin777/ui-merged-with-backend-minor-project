@@ -1,0 +1,38 @@
+# Work Log - 2026-11-10 21:20:00
+
+## Scope & Objective
+1. Built and integrated fluid 4-stage DPI pipeline animation (SVG + Canvas + CSS keyframes) into Capture view and Overview view.
+2. Fixed React duplicate key collision warnings across streaming packets and flows.
+3. Created an isolated Docker lab testing environment with 4 intentionally vulnerable containers (`vsftpd`, `openssh-server`, `dvwa`, `metasploitable-lite`) and multi-threaded `traffic_generator.py`.
+4. Implemented non-blocking Reverse DNS (rDNS PTR) and passive DNS extraction in backend `dpi/server.py` and `feature_extractor.py`.
+5. Exposed originating and destination site/source hostnames across Session Forensics, Flow Explorer, and Packet Inspector.
+
+## Changes Made
+- `dpi/feature/feature_extractor.py`:
+  - Added DNS layer extraction (`dns.qry_name`, `dns.resp_name`) to `FeatureExtractor.extract()`.
+  - Injected `dns_query` into packet features output.
+- `dpi/server.py`:
+  - Implemented `DNSResolver` class with `ThreadPoolExecutor` and in-memory LRU cache.
+  - Added fast reverse DNS (rDNS PTR) with fallback for loopback, local LAN, and Docker bridge lab subnet (`172.30.0.10` -> `kgec-vuln-ftp.lab`, etc.).
+  - Added `dns_resolver.learn_dns_mapping()` for passive learning from wire DNS traffic.
+  - Attached `src_host`, `dst_host`, and `dns_name` to `packet_record` and `flow_summary`.
+  - Added `GET /api/dns/resolve` endpoint for real-time IP lookup.
+  - Updated `/api/session/report` to include `src_host`, `dst_host`, and `dns_name` for all flagged threat flows and top talkers.
+- `apps/web/lib/api.ts`:
+  - Added `src_host`, `dst_host`, `dns_name`, and `dns_query` to TypeScript interfaces `PacketRecord`, `FlowSummary`, and `SessionReport`.
+  - Added `resolveDns()` client function.
+- `apps/web/components/views/AnalyticsView.tsx`:
+  - Added `Globe` icon badge displaying resolved host/site for Top Active Sources.
+  - Added DNS Host/Site badge underneath source and destination endpoints in Flagged Threats table.
+- `apps/web/components/views/FlowsView.tsx`:
+  - Displayed inline `Globe` badge with resolved hostname on flow conversation rows.
+  - Added "DNS & Host Identity" card to Deep Feature Inspector drawer showing originating site, target site, and DNS query.
+- `apps/web/components/views/PacketsView.tsx`:
+  - Added resolved hostname display for source and destination IPs in packet table.
+
+## Verification
+- Backend `/api/dns/resolve` tested:
+  - `127.0.0.1` -> `localhost (loopback)`
+  - `172.30.0.10` -> `kgec-vuln-ftp.lab`
+- Frontend TypeScript type check: 0 errors (`npx tsc --noEmit` exit code 0).
+- Browser verification initiated via subagent.

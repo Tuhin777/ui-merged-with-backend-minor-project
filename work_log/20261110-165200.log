@@ -1,0 +1,34 @@
+# Project Work Log
+
+## 2026-11-10 - Full Stack DPI ML System Integration & Interactive Developer UI
+
+- **Summary**: Transformed the DPI Python repository into a production-grade, interactive full-stack network intelligence platform with FastAPI bridge and Next.js 16 developer dashboard.
+- **Details (The 'What')**:
+  - Cloned and analyzed the `Minor_Project-KGEC_25-27` codebase (packet capture, feature extraction, flow management, and decision tree inference).
+  - Installed and verified global and workspace skills (`ui_ux_pro_max`, `frontend_design`, `enhance_ui`, `daily_log`, `web_performance_optimization`).
+  - Resolved Python 3.14 dependencies (`joblib`, `scikit-learn`, `python-multipart`).
+  - Fixed test runner import resolution in `tests/test_dpi.py` (all 13 unit tests passing).
+  - Implemented `dpi/server.py` — an asynchronous FastAPI server supporting:
+    - Real-time telemetry (`/api/status`, `/api/interfaces`)
+    - Remote capture triggers (`/api/capture/start`, `/api/capture/stop`)
+    - Offline PCAP upload & replay (`/api/capture/upload-pcap`) with thread-isolated asyncio event loop
+    - Bidirectional flow inspection (`/api/flows`, `/api/flows/{key}`)
+    - Packet inspection stream (`/api/packets`)
+    - On-demand ML prediction (`/api/model/predict`) & feature importance ranking (`/api/model/importance`)
+    - WebSocket telemetry streaming (`/ws/live`)
+  - Built comprehensive Next.js 16 frontend in `apps/web`:
+    - Responsive dark mode security theme conforming to `ui_ux_pro_max`
+    - Top header with live capture status radar and packet counters
+    - Tab navigation (`Overview`, `Capture & PCAP`, `Flow Explorer`, `Packet Inspector`, `ML Studio`)
+    - Slide-over Feature Inspector with 25 statistical features and Decision Tree class probabilities
+    - Interactive ML Diagnostic Studio with simulation presets
+  - Conducted end-to-end browser inspection and verified UI rendering via automated browser agent.
+- **Decisions (The 'Why')**:
+  - Chose FastAPI with threadpool worker isolation for PyShark to prevent event loop blocking on Windows with Python 3.14.
+  - Selected a Data-Dense + Drill-Down pattern recommended by `ui_ux_pro_max` to optimize for developer productivity and deep packet analysis.
+  - Retained both polling fallback and WebSocket real-time updates to ensure reliable telemetry even if connections drop.
+- **Blockers & Open Questions**:
+  - `model/train.py` is currently empty in the original repository; a retraining pipeline can be added next if custom datasets are provided.
+- **Next Steps**:
+  - Add packet export to PCAP / CSV from the browser.
+  - Implement custom BPF filter builder with validation.

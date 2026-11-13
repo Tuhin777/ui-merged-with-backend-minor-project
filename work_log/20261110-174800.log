@@ -1,0 +1,28 @@
+# Project Work Log
+
+## 2026-11-10 - Pressworks Aesthetic Transformation
+
+- **Summary**: Extracted design tokens directly from Pressworks (`https://pressworks.dev/`) and restyled the entire DPI Intelligence Studio to match its warm editorial letterpress aesthetic.
+- **Details (The 'What')**:
+  - Inspected `https://pressworks.dev/css/app.css` and extracted primary design tokens:
+    - Canvas ground: `--color-ground: #f4f1ea` (warm unbleached paper)
+    - Ink: `--color-ink: #1a1815` (deep letterpress charcoal)
+    - Muted: `--color-muted: #6b6459` (warm sepia gray)
+    - Rule: `--color-rule: #d6cfc0` (1px paper border & dot matrix)
+    - Accent: `--color-accent: #f7b955` (golden amber button & highlight)
+    - Success/Safe: `--color-owned: #2f7d4f` (deep vintage forest green)
+    - Danger/Threat: `#b91c1c` (warm rust alert)
+  - Configured `apps/web/app/globals.css`:
+    - Set up `.bg-dotted` using radial-gradient with `--color-rule`
+    - Added tactile button/card box shadows (`press-shadow-sm`, `press-shadow`)
+    - Customized editorial scrollbar matching paper tones
+  - Updated all 5 views (`Header`, `Sidebar`, `OverviewView`, `FlowsView`, `CaptureView`, `PacketsView`, `MLStudioView`):
+    - 2px structural ink borders (`border-2 border-[#1a1815]`)
+    - Tactile buttons with offset shadow styling
+    - Clean paper card containers on dotted canvas
+    - Monospace numerals and 5-tuple networking specs
+  - Verified visual rendering via browser agent capturing live screenshot of `http://localhost:3000`.
+- **Decisions (The 'Why')**:
+  - Matched the user's explicit reference to `https://pressworks.dev/`, shifting from standard dark-mode cyber dashboards to a high-craft, typography-first print-shop aesthetic.
+- **Next Steps**:
+  - Ready for developer testing or further component additions.

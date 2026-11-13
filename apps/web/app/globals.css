@@ -1,0 +1,311 @@
+@import "tailwindcss";
+
+:root {
+  --color-ground: #f4f1ea;
+  --color-paper: #ffffff;
+  --color-paper-alt: #fdfbf7;
+  --color-ink: #1a1815;
+  --color-muted: #6b6459;
+  --color-rule: #d6cfc0;
+  --color-accent: #f7b955;
+  --color-accent-hover: #f4c775;
+  --color-owned: #2f7d4f;
+  --color-danger: #c2410c;
+  --color-alert: #b91c1c;
+}
+
+html.dark {
+  --color-ground: #0c0e14;
+  --color-paper: #161922;
+  --color-paper-alt: #1d212c;
+  --color-ink: #f1f5f9;
+  --color-muted: #94a3b8;
+  --color-rule: #2d3342;
+  --color-accent: #f7b955;
+  --color-accent-hover: #f4c775;
+  --color-owned: #10b981;
+  --color-danger: #f97316;
+  --color-alert: #ef4444;
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-ground);
+  color: var(--color-ink);
+  font-family: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Pressworks Dotted Engineering Canvas */
+.bg-dotted {
+  background-image: radial-gradient(#d6cfc0 1.25px, transparent 1.25px);
+  background-size: 20px 20px;
+}
+
+/* Pressworks Tactile Neo-Brutalist Box Shadow */
+.press-shadow-sm {
+  box-shadow: 2px 2px 0px #1a1815;
+}
+
+.press-shadow {
+  box-shadow: 3px 3px 0px #1a1815;
+}
+
+.press-shadow-card {
+  box-shadow: 2px 2px 0px rgba(26, 24, 21, 0.08);
+}
+
+/* Custom Editorial Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f1ea;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6cfc0;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6b6459;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Cyber-Tactical Dark Mode Engine ─────────────────────────────────────── */
+
+html.dark body {
+  background-color: #0c0e14 !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .bg-dotted {
+  background-image: radial-gradient(#252a38 1.25px, transparent 1.25px) !important;
+  background-color: #0c0e14 !important;
+}
+
+/* Tactile dark shadows */
+html.dark .press-shadow-sm {
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+html.dark .press-shadow {
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+
+html.dark .press-shadow-card {
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Scrollbars */
+html.dark ::-webkit-scrollbar-track {
+  background: #0c0e14;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2d3342;
+  border-radius: 2px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Surface Panels */
+html.dark [class*="bg-[#f4f1ea]"] {
+  background-color: #0c0e14 !important;
+}
+html.dark [class*="bg-[#ffffff]"] {
+  background-color: #161922 !important;
+}
+html.dark [class*="bg-[#fdfbf7]"] {
+  background-color: #1b1f2a !important;
+}
+html.dark [class*="bg-[#eae5d9]"] {
+  background-color: #222735 !important;
+}
+
+/* Hover States */
+html.dark [class*="hover:bg-[#f4f1ea]"]:hover {
+  background-color: #1a1e28 !important;
+}
+html.dark [class*="hover:bg-[#eae5d9]"]:hover {
+  background-color: #242a38 !important;
+}
+html.dark [class*="hover:bg-[#ffffff]"]:hover {
+  background-color: #1e222e !important;
+}
+html.dark [class*="hover:bg-[#ffffff]/70"]:hover {
+  background-color: rgba(30, 34, 46, 0.7) !important;
+}
+
+/* Tactile Borders */
+html.dark [class*="border-[#1a1815]"] {
+  border-color: #2d3342 !important;
+}
+html.dark [class*="border-[#d6cfc0]"] {
+  border-color: #252a36 !important;
+}
+html.dark [class*="divide-[#1a1815]"] > * + * {
+  border-color: #2d3342 !important;
+}
+html.dark [class*="divide-[#d6cfc0]"] > * + * {
+  border-color: #252a36 !important;
+}
+
+/* Primary Text (Keep contrast on amber/yellow buttons & badges) */
+html.dark [class*="text-[#1a1815]"]:not([class*="bg-[#f7b955]"]):not([class*="bg-[#f4c775]"]):not([class*="bg-amber"]):not([class*="bg-yellow"]) {
+  color: #f1f5f9 !important;
+}
+
+/* Secondary / Muted Text */
+html.dark [class*="text-[#6b6459]"] {
+  color: #94a3b8 !important;
+}
+html.dark [class*="text-[#3d372e]"] {
+  color: #cbd5e1 !important;
+}
+
+/* Table alternate rows and card backgrounds */
+html.dark tr[class*="bg-[#fdfbf7]"],
+html.dark [class*="even:bg-[#fdfbf7]"]:nth-child(even),
+html.dark [class*="odd:bg-[#fdfbf7]"]:nth-child(odd) {
+  background-color: #12151d !important;
+}
+
+html.dark tr[class*="hover:bg-[#fdfbf7]"]:hover,
+html.dark tr[class*="hover:bg-[#f4f1ea]"]:hover {
+  background-color: #1c212d !important;
+}
+
+/* Threat & Safe Status Colors in Dark Mode */
+html.dark [class*="text-[#2f7d4f]"] {
+  color: #10b981 !important;
+}
+html.dark [class*="bg-[#2f7d4f]"] {
+  background-color: #059669 !important;
+}
+html.dark [class*="text-[#b91c1c]"] {
+  color: #f87171 !important;
+}
+html.dark [class*="bg-[#b91c1c]"] {
+  background-color: #dc2626 !important;
+}
+
+/* Active navigation item enhancement in Dark Mode */
+html.dark aside button[class*="bg-[#ffffff]"] {
+  background-color: #1c2230 !important;
+  border-color: #f7b955 !important;
+}
+html.dark aside button[class*="bg-[#ffffff]"] svg {
+  color: #f7b955 !important;
+}
+
+/* Inputs, selects, and textareas */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #161922 !important;
+  color: #f1f5f9 !important;
+  border-color: #2d3342 !important;
+}
+
+html.dark option {
+  background-color: #161922 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Threat & Alert soft highlights in dark mode */
+html.dark [class*="bg-[#fff1f2]"] {
+  background-color: rgba(239, 68, 68, 0.16) !important;
+}
+html.dark [class*="bg-[#fefce8]"] {
+  background-color: rgba(245, 158, 11, 0.16) !important;
+}
+html.dark [class*="bg-[#f0fdf4]"] {
+  background-color: rgba(16, 185, 129, 0.16) !important;
+}
+
+/* Overlay backdrops */
+html.dark [class*="bg-[#1a1815]/50"],
+html.dark [class*="bg-[#1a1815]/40"] {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+/* SVG Pipeline stage boxes in dark mode */
+html.dark svg line[stroke="#d6cfc0"] {
+  stroke: #2d3342 !important;
+}
+html.dark svg polygon[fill="#d6cfc0"] {
+  fill: #2d3342 !important;
+}
+html.dark svg rect[fill="#f4f1ea"] {
+  fill: #161922 !important;
+}
+html.dark svg rect[fill="#fffef5"] {
+  fill: #1e2433 !important;
+}
+html.dark svg rect[fill="#fff1f2"] {
+  fill: #2a1518 !important;
+}
+html.dark svg rect[stroke="#1a1815"] {
+  stroke: #2d3342 !important;
+}
+html.dark svg text[fill="#1a1815"] {
+  fill: #f1f5f9 !important;
+}
+html.dark svg text[fill="#6b6459"] {
+  fill: #94a3b8 !important;
+}
+html.dark svg text[fill="#3d372e"] {
+  fill: #cbd5e1 !important;
+}
+
+/* ─── DPI Pipeline Animation Keyframes ─────────────────────────────────────── */
+
+/* Stage active glow — amber pulse */
+@keyframes stageGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 0px rgba(247, 185, 85, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(247, 185, 85, 0.6))
+            drop-shadow(0 0 2px rgba(247, 185, 85, 0.9));
+  }
+}
+
+/* Threat detected — crimson pulse, faster */
+@keyframes threatPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 0px rgba(185, 28, 28, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(185, 28, 28, 0.7))
+            drop-shadow(0 0 3px rgba(185, 28, 28, 1));
+  }
+}
+
+/* Idle breath — very slow, barely visible */
+@keyframes idleBreathe {
+  0%, 100% { opacity: 0.85; }
+  50%       { opacity: 1; }
+}
+
+/* Stage CSS classes (applied by DPIPipelineAnimation.tsx) */
+.stage-active {
+  animation: stageGlow 1.5s ease-in-out infinite;
+}
+
+.stage-threat {
+  animation: threatPulse 0.75s ease-in-out infinite;
+}
+
+.stage-idle {
+  animation: idleBreathe 3s ease-in-out infinite;
+}

@@ -1,0 +1,111 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# KGEC DPI Lab — Intentionally Vulnerable Services
+# Legal use only: isolated loopback / Docker bridge network, never expose outside
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "3.9"
+
+networks:
+  dpi-lab:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+services:
+
+  # ── 1. Vulnerable FTP Server (vsftpd anonymous + weak credentials) ──────────
+  vuln-ftp:
+    image: fauria/vsftpd
+    container_name: kgec-vuln-ftp
+    networks:
+      dpi-lab:
+        ipv4_address: 172.30.0.10
+    ports:
+      - "2121:21"          # host port 2121 → container 21 (avoid conflict with real FTP)
+    environment:
+      FTP_USER: labuser
+      FTP_PASS: password123
+      PASV_MIN_PORT: 21100
+      PASV_MAX_PORT: 21110
+      PASV_ADDRESS: 127.0.0.1
+    volumes:
+      - ./ftp-data:/home/vsftpd/labuser
+    restart: unless-stopped
+    labels:
+      lab.purpose: "FTP bruteforce target — KGEC DPI project"
+
+  # ── 2. Vulnerable SSH Server (weak credentials, no rate limiting) ───────────
+  vuln-ssh:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: kgec-vuln-ssh
+    networks:
+      dpi-lab:
+        ipv4_address: 172.30.0.11
+    ports:
+      - "2222:2222"        # host port 2222 → container 2222
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Asia/Kolkata
+      USER_NAME: labuser
+      USER_PASSWORD: weakpass
+      PASSWORD_ACCESS: "true"
+      SUDO_ACCESS: "false"
+    restart: unless-stopped
+    labels:
+      lab.purpose: "SSH bruteforce target — KGEC DPI project"
+
+  # ── 3. DVWA (Damn Vulnerable Web Application) ───────────────────────────────
+  dvwa:
+    image: ghcr.io/digininja/dvwa:latest
+    container_name: kgec-dvwa
+    networks:
+      dpi-lab:
+        ipv4_address: 172.30.0.12
+    ports:
+      - "8080:80"          # http://localhost:8080 → DVWA
+    environment:
+      DB_SERVER: dvwa-db
+      DB_PORT: 3306
+      DB_DATABASE: dvwa
+      DB_USERNAME: dvwa
+      DB_PASSWORD: p@ssw0rd
+    depends_on:
+      - dvwa-db
+    restart: unless-stopped
+    labels:
+      lab.purpose: "Web vuln app — HTTP flood / brute target"
+
+  dvwa-db:
+    image: mariadb:10.11
+    container_name: kgec-dvwa-db
+    networks:
+      dpi-lab:
+        ipv4_address: 172.30.0.13
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: dvwa
+      MYSQL_USER: dvwa
+      MYSQL_PASSWORD: p@ssw0rd
+    volumes:
+      - dvwa-db-data:/var/lib/mysql
+    restart: unless-stopped
+
+  # ── 4. Metasploitable-lite (intentionally misconfigured services) ───────────
+  # Uses a minimal Alpine image configured to simulate a vulnerable host
+  vuln-host:
+    image: tleemcjr/metasploitable2
+    container_name: kgec-vuln-host
+    networks:
+      dpi-lab:
+        ipv4_address: 172.30.0.20
+    ports:
+      - "2323:23"          # Telnet (cleartext protocol)
+      - "5900:5900"        # VNC
+    restart: unless-stopped
+    labels:
+      lab.purpose: "Multi-service vulnerable host — KGEC DPI project"
+
+volumes:
+  dvwa-db-data:
