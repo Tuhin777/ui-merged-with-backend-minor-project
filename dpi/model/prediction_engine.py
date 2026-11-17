@@ -364,3 +364,108 @@ class PredictionEngine:
             "probabilities": probabilities,
             "features_analyzed": len(features_dict)
         }
+
+    def export_tree_graph(self, max_depth: Optional[int] = 4) -> Dict[str, Any]:
+        """
+        Exports the trained Decision Tree structure into a hierarchical graph
+        compatible with React Flow (@xyflow/react).
+        """
+        if not self._is_loaded or self.model is None or not hasattr(self.model, "tree_"):
+            return {"nodes": [], "edges": [], "total_nodes": 0, "max_depth": 0, "classes": []}
+
+        tree = self.model.tree_
+        classes = getattr(self.model, "classes_", ["Benign", "FTP-BruteForce", "SSH-Bruteforce"])
+        feature_names = self.feature_names or [f"Feature_{i}" for i in range(tree.n_features)]
+
+        levels: Dict[int, List[int]] = {}
+
+        def collect(node_id: int, depth: int):
+            if depth not in levels:
+                levels[depth] = []
+            levels[depth].append(node_id)
+            is_leaf = tree.children_left[node_id] == tree.children_right[node_id]
+            if not is_leaf and (max_depth is None or depth < max_depth):
+                collect(int(tree.children_left[node_id]), depth + 1)
+                collect(int(tree.children_right[node_id]), depth + 1)
+
+        collect(0, 0)
+
+        # Calculate balanced horizontal layout positions per level
+        node_positions = {}
+        for depth, nlist in levels.items():
+            count = len(nlist)
+            spacing = 320
+            start_x = -(count - 1) * spacing / 2 + 700
+            for i, nid in enumerate(nlist):
+                node_positions[nid] = (start_x + i * spacing, depth * 210 + 40)
+
+        nodes = []
+        edges = []
+
+        def build(node_id: int, depth: int):
+            is_leaf = tree.children_left[node_id] == tree.children_right[node_id]
+            feat_idx = int(tree.feature[node_id])
+            feat_name = feature_names[feat_idx] if (not is_leaf and feat_idx < len(feature_names)) else "Decision Leaf"
+            thresh = float(tree.threshold[node_id])
+            val = [int(v) for v in tree.value[node_id][0]]
+            tot = sum(val)
+            pred_idx = int(np.argmax(val))
+            pred_label = str(classes[pred_idx]) if pred_idx < len(classes) else "Unknown"
+            conf = round((val[pred_idx] / tot * 100), 1) if tot > 0 else 100.0
+
+            px, py = node_positions.get(node_id, (700, depth * 210 + 40))
+
+            dist = {}
+            for idx, cname in enumerate(classes):
+                dist[str(cname)] = val[idx] if idx < len(val) else 0
+
+            nodes.append({
+                "id": str(node_id),
+                "type": "decisionTreeNode",
+                "position": {"x": px, "y": py},
+                "data": {
+                    "node_id": node_id,
+                    "depth": depth,
+                    "is_leaf": is_leaf,
+                    "feature": feat_name,
+                    "threshold": round(thresh, 4),
+                    "samples": int(tree.n_node_samples[node_id]),
+                    "impurity": round(float(tree.impurity[node_id]), 4),
+                    "distribution": dist,
+                    "prediction": pred_label,
+                    "confidence": conf,
+                }
+            })
+
+            if not is_leaf and (max_depth is None or depth < max_depth):
+                left = int(tree.children_left[node_id])
+                right = int(tree.children_right[node_id])
+
+                edges.append({
+                    "id": f"e{node_id}-{left}",
+                    "source": str(node_id),
+                    "target": str(left),
+                    "label": f"≤ {thresh:.2f}",
+                    "type": "smoothstep",
+                    "style": {"stroke": "#38bdf8", "strokeWidth": 2}
+                })
+                edges.append({
+                    "id": f"e{node_id}-{right}",
+                    "source": str(node_id),
+                    "target": str(right),
+                    "label": f"> {thresh:.2f}",
+                    "type": "smoothstep",
+                    "style": {"stroke": "#f59e0b", "strokeWidth": 2}
+                })
+
+                build(left, depth + 1)
+                build(right, depth + 1)
+
+        build(0, 0)
+        return {
+            "nodes": nodes,
+            "edges": edges,
+            "total_nodes": int(tree.node_count),
+            "max_depth": int(tree.max_depth),
+            "classes": [str(c) for c in classes]
+        }

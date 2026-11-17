@@ -426,3 +426,46 @@ export async function startLabServices(): Promise<{ status: string }> {
   if (!res.ok) throw new Error("Failed to start lab services");
   return res.json();
 }
+
+export interface TreeNodeData extends Record<string, unknown> {
+  node_id: number;
+  depth: number;
+  is_leaf: boolean;
+  feature: string;
+  threshold: number;
+  samples: number;
+  impurity: number;
+  distribution: Record<string, number>;
+  prediction: string;
+  confidence: number;
+}
+
+export interface TreeGraphNode {
+  id: string;
+  type: string;
+  position: { x: number; y: number };
+  data: TreeNodeData;
+}
+
+export interface TreeGraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  label: string;
+  type?: string;
+  style?: Record<string, any>;
+}
+
+export interface TreeGraphResponse {
+  nodes: TreeGraphNode[];
+  edges: TreeGraphEdge[];
+  total_nodes: number;
+  max_depth: number;
+  classes: string[];
+}
+
+export async function fetchTreeGraph(maxDepth: number = 4): Promise<TreeGraphResponse> {
+  const res = await fetch(`${API_BASE_URL}/api/model/tree-graph?max_depth=${maxDepth}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch model tree graph");
+  return res.json();
+}

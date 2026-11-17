@@ -781,6 +781,16 @@ def get_feature_importance():
     }
 
 
+@app.get("/api/model/tree-graph")
+def get_model_tree_graph(max_depth: Optional[int] = 4):
+    """
+    Returns hierarchical Decision Tree nodes and edges for React Flow visualizer.
+    Supports max_depth filtering (default: 4, pass max_depth=0 for full tree).
+    """
+    depth_limit = None if (max_depth is not None and max_depth <= 0) else max_depth
+    return engine.export_tree_graph(max_depth=depth_limit)
+
+
 # ============================================================================
 # Session Forensics & External Dataset Benchmark
 # ============================================================================

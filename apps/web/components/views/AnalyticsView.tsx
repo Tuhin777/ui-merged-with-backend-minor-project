@@ -6,8 +6,11 @@ import {
   DatasetEvaluationResult, 
   fetchSessionReport, 
   evaluateCsvDataset, 
-  fetchSampleBenchmark 
+  fetchSampleBenchmark,
+  fetchFlows,
+  FlowSummary
 } from "@/lib/api";
+import { SankeyTrafficDiagram } from "@/components/SankeyTrafficDiagram";
 import { 
   ShieldCheck, 
   ShieldAlert, 
@@ -36,11 +39,12 @@ interface AnalyticsViewProps {
 }
 
 export function AnalyticsView({ onInspectFlow, onNavigate }: AnalyticsViewProps) {
-  const [subTab, setSubTab] = useState<"forensics" | "benchmark">("forensics");
+  const [subTab, setSubTab] = useState<"conduits" | "forensics" | "benchmark">("conduits");
 
   // Forensics report state
   const [report, setReport] = useState<SessionReport | null>(null);
   const [loadingReport, setLoadingReport] = useState<boolean>(true);
+  const [flows, setFlows] = useState<FlowSummary[]>([]);
 
   // Benchmark state
   const [benchmarkResult, setBenchmarkResult] = useState<DatasetEvaluationResult | null>(null);
@@ -55,6 +59,10 @@ export function AnalyticsView({ onInspectFlow, onNavigate }: AnalyticsViewProps)
       .then((data) => setReport(data))
       .catch((err) => console.error("Could not load session report:", err))
       .finally(() => setLoadingReport(false));
+
+    fetchFlows()
+      .then((res) => setFlows(res.flows || []))
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -140,6 +148,16 @@ export function AnalyticsView({ onInspectFlow, onNavigate }: AnalyticsViewProps)
         {/* View Switcher Pills */}
         <div className="flex items-center gap-1.5 p-1 rounded border-2 border-[#1a1815] bg-[#ffffff] press-shadow-sm w-full sm:w-auto overflow-x-auto scrollbar-none">
           <button
+            onClick={() => setSubTab("conduits")}
+            className={`flex-1 sm:flex-initial text-center px-3.5 py-1.5 rounded text-xs font-bold font-mono transition cursor-pointer whitespace-nowrap ${
+              subTab === "conduits"
+                ? "bg-[#1a1815] text-[#ffffff] press-shadow-sm"
+                : "text-[#6b6459] hover:text-[#1a1815]"
+            }`}
+          >
+            Sankey Conduits
+          </button>
+          <button
             onClick={() => setSubTab("forensics")}
             className={`flex-1 sm:flex-initial text-center px-3.5 py-1.5 rounded text-xs font-bold font-mono transition cursor-pointer whitespace-nowrap ${
               subTab === "forensics"
@@ -161,6 +179,15 @@ export function AnalyticsView({ onInspectFlow, onNavigate }: AnalyticsViewProps)
           </button>
         </div>
       </div>
+
+      {/* ==================================================================== */}
+      {/* VIEW 0: SANKEY TRAFFIC FLOW CONDUITS                                 */}
+      {/* ==================================================================== */}
+      {subTab === "conduits" && (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          <SankeyTrafficDiagram flows={flows} />
+        </div>
+      )}
 
       {/* ==================================================================== */}
       {/* VIEW 1: FINISHED SESSION FORENSICS                                   */}

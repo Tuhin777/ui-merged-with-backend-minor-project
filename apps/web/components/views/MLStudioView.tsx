@@ -12,10 +12,14 @@ import {
   Cpu, 
   Play, 
   BarChart3, 
-  RefreshCw 
+  RefreshCw,
+  GitFork,
+  SlidersHorizontal
 } from "lucide-react";
+import { DecisionTreeFlowVisualizer } from "@/components/DecisionTreeFlowVisualizer";
 
 export function MLStudioView() {
+  const [activeTab, setActiveTab] = useState<"tree" | "classifier">("tree");
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const [importanceList, setImportanceList] = useState<FeatureImportance[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -201,7 +205,40 @@ export function MLStudioView() {
         </div>
       </div>
 
-      {/* Grid: Simulator on Left, Feature Importance on Right */}
+      {/* View Sub-Tabs */}
+      <div className="flex items-center gap-2 border-b-2 border-[#1a1815] pb-2">
+        <button
+          onClick={() => setActiveTab("tree")}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-mono font-bold transition cursor-pointer ${
+            activeTab === "tree"
+              ? "bg-[#1a1815] text-white shadow-sm"
+              : "bg-white hover:bg-slate-100 text-[#1a1815] border border-[#1a1815]"
+          }`}
+        >
+          <GitFork className="w-3.5 h-3.5 text-sky-400" />
+          <span>Interactive Tree Visualizer (@xyflow/react)</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("classifier")}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-mono font-bold transition cursor-pointer ${
+            activeTab === "classifier"
+              ? "bg-[#1a1815] text-white shadow-sm"
+              : "bg-white hover:bg-slate-100 text-[#1a1815] border border-[#1a1815]"
+          }`}
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-500" />
+          <span>Flow Feature Simulator & Importance Rankings</span>
+        </button>
+      </div>
+
+      {/* Tab 1: Interactive Decision Tree Visualizer */}
+      {activeTab === "tree" && (
+        <DecisionTreeFlowVisualizer />
+      )}
+
+      {/* Tab 2: Feature Simulator & Rankings Grid */}
+      {activeTab === "classifier" && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Simulator Column (2 cols) */}
         <div className="lg:col-span-2 p-4 sm:p-5 rounded border-2 border-[#1a1815] bg-[#ffffff] press-shadow space-y-5">
@@ -366,6 +403,7 @@ export function MLStudioView() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
